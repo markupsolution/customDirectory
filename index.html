@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Custom Directory</title>
+<meta name="description" content="...">
+<meta name="keywords" content="...">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- CSS
+================================================== -->
+<link href="css/template.css" rel="stylesheet" />
+
+<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+	// Set DOM variables
+	/*var setPath        = $('#navigator_line'); // The place where we want set the Path
+	var mainCategory     = $('#main_category');  // The place where we want place the Main Category template
+	var subCategory      = $('#sub_category');   // The place where we want place the Sub Category template
+	var inputField       = $('#field_creation'); // The input field which we want the use as directory creator
+	var directoryCreator = $('#directory_creator'); // The Create Button */
+	
+	//Set Main Category
+	var category = ["Documents","Pictures","Recipes","Slides","Misc"];
+	
+	//Set Sub Category
+	var subcategories = {
+		
+	}	
+	// Set Secondary Category if Aavialable
+	subcategories.documents = ["Finance","History","School","Sales"];
+	subcategories.pictures  = ["Man","Bird","Cat","Dog"];
+	subcategories.recipes   = ["Tax","Expense","House Rent"];
+	subcategories.slides    = ["Fade","Flip"];
+	subcategories.misc      = ["Blah","Lorem","etc"];
+	
+	// Set Main Category Path
+	function setPath(self){
+		
+		$('#navigator_line').text($(self).val());
+		var set_array = $(self).val().toLowerCase();
+		var getListHtml = createArray(set_array,self);
+		$(self).closest('input[type="hidden"]').val(set_array);
+		$('#directory_creator').val(set_array);
+		$('#sub_category').html(getListHtml);
+		
+		return false
+	}
+	
+	function goNested(self){
+		var getSelfTxt = $('#directory_creator').val()+$(self).text().toLowerCase();
+		if(!subcategories[getSelfTxt]){
+			subcategories[getSelfTxt] = []
+		}
+		//alert(subcategories[getSelfTxt][subcategories[getSelfTxt].length-1])
+		$('#directory_creator').val($('#directory_creator').val()+'/'+$(self).text().toLowerCase());
+		$('#sub_category').html(createArray(getSelfTxt,self))
+	}
+	
+	
+	// Create new template for new sub category
+	function createArray(array_name, self){
+		//console.log(typeof array_name)
+		var list = '';
+		for(var i = 0; i<subcategories[array_name].sort().length; i++){
+			list += '<li><a href="javascript:void(0)" onClick="setActive(this)" onDblClick="goNested(this)">'+subcategories[array_name][i]+'</a></li>';
+		}
+		return list;
+	}
+	
+	// Set the selected state when click on subcategory
+	function setActive(self){
+		$('#sub_category a').removeClass('selected')
+		$(self).addClass('selected');
+		//$('#navigator_line').text($('#navigator_line').text()+' - '+$(self).text());
+		return false
+	}
+	
+	// Create new subdirectory under a specific directory
+	function createSubDirectory(self){
+		var current_directory = $(self).val().split('/');
+		//current_directory = current_directory[current_directory.length-1];
+		current_directory = current_directory.join('');
+		subcategories[current_directory].push($('#field_creation').val());
+		$('#sub_category').html(createArray(current_directory,self));
+		$('#field_creation').val('').focus();
+		return false
+	}
+	
+	function goToBack(backButton){
+		
+	}
+	
+	$(document).ready(function(){
+		
+		// Creating Main Category template
+		var main_cat = '';
+		
+		for(var i = 0; i<category.length; i++){
+			main_cat += '<li><input type="radio" onChange="setPath(this)" name="maindirectory" value="'+category[i]+'" id="'+category[i]+i+'" /><label for="'+category[i]+i+'">'+category[i]+'</label><input type="hidden" id="array-'+category[i].toLowerCase()+'" value="array-'+category[i].toLowerCase()+'" /></li>';
+		}
+		
+		$('#main_category').html(main_cat);
+		
+		
+		
+	})
+	
+</script>
+
+</head>
+	<body>
+    	<div class="directory-wrapper">
+        	<div class="button-back"><a href="javascript:void(0)" onClick="goToBack(this)">Back</a></div>
+        	<div class="directories-column">
+            	<ul class="no-list-style" id="main_category">
+                	
+                </ul>
+            </div>
+            <div class="sub-directories-column" id="sub_categories">
+            	<ul class="no-list-style" id="sub_category">
+                	
+                </ul>
+            </div>
+            <div class="creation-form">
+                <input type="text" class="field-creation" id="field_creation" value="" />
+                <button onClick="createSubDirectory(this)" value="" id="directory_creator">Create</button>
+            </div>
+            <div class="category-path">Path: <span id="navigator_line"></span></div>
+        </div>
+        
+    </body>
+</html>
