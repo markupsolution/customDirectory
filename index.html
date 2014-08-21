@@ -31,28 +31,50 @@
 	function setPath(self){
 		
 		$('#navigator_line').text($(self).val());
-		var set_array = $(self).val().toLowerCase();
+		var set_array = $(self).val().toLowerCase().replace(/\s+/g, '-');
 		var getListHtml = createArray(set_array,self);
 		$(self).closest('input[type="hidden"]').val(set_array);
 		$('#directory_creator').val(set_array);
 		$('#sub_category').html(getListHtml);
+		$('#goBackButton').addClass('hidden');
+		$('#field_creation').val('').focus();
 		
 		return false
 	}
 	
+	
+	// Go inside directory when double clicking on item
 	function goNested(self){
-		var getSelfTxt = $('#directory_creator').val()+$(self).text().toLowerCase();
+		var getSelfTxt = $('#directory_creator').val().replace(/\//g,'')+$(self).text().toLowerCase().replace(/\s+/g, '-');
+		
 		if(!subcategories[getSelfTxt]){
 			subcategories[getSelfTxt] = []
 		}
-		$('#directory_creator').val($('#directory_creator').val()+'/'+$(self).text().toLowerCase());
+		
+		$('#directory_creator').val($('#directory_creator').val().replace(/\s+/g, '-')+'/'+$(self).text().toLowerCase().replace(/\s+/g, '-'));
+		
+		if($('#directory_creator').val().split('/').length>1) {$('#goBackButton').removeClass('hidden')}
+		
 		$('#sub_category').html(createArray(getSelfTxt,self))
+		
+		// Set Path From Create Button
+		current_directory = $('#directory_creator').val().split('/');
+		var getPath = '';
+		if(current_directory.length==1){getPath=current_directory[0].split('-').join(' ')}
+		else {
+			for(var i=0; i<current_directory.length;i++){
+				if(i==0){getPath+=current_directory[i].split('-').join(' ')+' - '}
+				else if(i==current_directory.length-1){ getPath+=current_directory[i].split('-').join(' ')}
+				else{ getPath+=current_directory[i].split('-').join(' ')+' / '}
+			}
+		}
+		$('#navigator_line').text(getPath);
+		
 	}
 	
 	
 	// Create new template for new sub category
 	function createArray(array_name, self){
-		//console.log(typeof array_name)
 		var list = '';
 		for(var i = 0; i<subcategories[array_name].sort().length; i++){
 			list += '<li><a href="javascript:void(0)" onClick="setActive(this)" onDblClick="goNested(this)">'+subcategories[array_name][i]+'</a></li>';
@@ -62,20 +84,100 @@
 	
 	// Set the selected state when click on subcategory
 	function setActive(self){
-		$('#sub_category a').removeClass('selected')
+		$('#sub_category a').removeClass('selected');
 		$(self).addClass('selected');
+		
+		current_directory = $('#directory_creator').val().split('/');
+		
+		var getPrevText = '';
+		for(var i=0; i<current_directory.length;i++){
+			if(i==current_directory.length){
+				getPrevText += $('#navigator_line').text().replace('/','-').split('-')[i]
+			}
+			else if(i==0){
+				getPrevText += $('#navigator_line').text().replace('/','-').split('-')[i]+' - '
+			}
+			else {
+				getPrevText += $('#navigator_line').text().replace('/','-').split('-')[i]+' / '
+			}
+			
+		}
+		
+		$('#navigator_line').text(getPrevText+$(self).text())
+		
+		/*if(current_directory.length==1) {
+			$('#navigator_line').text(getPrevText+' - '+$(self).text())
+		}
+		else {
+			$('#navigator_line').text(getPrevText+' / '+$(self).text())
+		}*/
+		
 		return false
 	}
 	
 	// Create new subdirectory under a specific directory
 	function createSubDirectory(self){
 		var current_directory = $(self).val().split('/');
-		//current_directory = current_directory[current_directory.length-1];
 		current_directory = current_directory.join('');
+		current_directory = current_directory.replace(/\s+/g, '')
+		
+		// Check if the smae directory already exist
+		/*for(var i=0;i<subcategories[current_directory].length;i++){
+			if(subcategories[current_directory][i]==$('#field_creation').val()){
+				alert('"'+$('#field_creation').val()+'" directory already exist.');
+				$('#field_creation').focus();
+				return
+			}
+		}*/
+		
+		if($('#field_creation').val().toLowerCase()==$(self).val().split('/')[0]){
+			alert('"'+$('#field_creation').val()+'" directory already exist.');
+			$('#field_creation').focus();
+			return
+		}
+		
+		var getStepArray = '';
+		for(var i=0; i<$(self).val().split('/').length;i++){
+			
+			getStepArray += $(self).val().split('/')[i];
+			
+			for(var j=0;j<subcategories[getStepArray].length;j++){
+				if(subcategories[getStepArray][j]==$('#field_creation').val()){
+					alert('"'+$('#field_creation').val()+'" directory already exist.');
+					$('#field_creation').focus();
+					return
+				}
+			}
+		}
+		
 		subcategories[current_directory].push($('#field_creation').val());
 		$('#sub_category').html(createArray(current_directory,self));
 		$('#field_creation').val('').focus();
 		return false
+	}
+	
+	function goToBack(button){
+		var current_directory = $('#directory_creator').val().split('/');
+		current_directory.pop(current_directory.length-1);
+		
+		if(current_directory.length<2){$(button).addClass('hidden')}
+		
+		// Set Path From Create Button
+		var getPath = '';
+		if(current_directory.length==1){getPath=current_directory[0]}
+		else {
+			for(var i=0; i<current_directory.length;i++){
+				if(i==0){getPath+=current_directory[i].split('-').join(' ')+' - '}
+				else if(i==current_directory.length-1){ getPath+=current_directory[i].split('-').join(' ')}
+				else{getPath+=current_directory[i].split('-').join(' ')+' / '}
+				//else{ getPath+=current_directory[i].split('-').join(' ')+' / '}
+			}
+		}
+		$('#navigator_line').text(getPath);
+		
+		$('#sub_category').html(createArray(current_directory.join(''),self));
+		$('#directory_creator').val(current_directory.join('/'));
+		
 	}
 	
 	$(document).ready(function(){
@@ -89,6 +191,9 @@
 		
 		$('#main_category').html(main_cat);
 		
+		// Set Default Selection
+		$('#main_category').find('input[name="maindirectory"]').eq(0).trigger('click');
+		
 	})
 	
 </script>
@@ -96,7 +201,7 @@
 </head>
 	<body>
     	<div class="directory-wrapper">
-        	<div class="button-back"><a href="javascript:void(0)" onClick="goToBack(this)">Back</a></div>
+        	<div class="button-back"><a href="javascript:void(0)" onClick="goToBack(this)" id="goBackButton" class="hidden">Back</a></div>
         	<div class="directories-column">
             	<ul class="no-list-style" id="main_category">
                 	
