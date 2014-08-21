@@ -12,13 +12,6 @@
 
 <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
 <script>
-
-	// Set DOM variables
-	/*var setPath        = $('#navigator_line'); // The place where we want set the Path
-	var mainCategory     = $('#main_category');  // The place where we want place the Main Category template
-	var subCategory      = $('#sub_category');   // The place where we want place the Sub Category template
-	var inputField       = $('#field_creation'); // The input field which we want the use as directory creator
-	var directoryCreator = $('#directory_creator'); // The Create Button */
 	
 	//Set Main Category
 	var category = ["Documents","Pictures","Recipes","Slides","Misc"];
@@ -52,7 +45,6 @@
 		if(!subcategories[getSelfTxt]){
 			subcategories[getSelfTxt] = []
 		}
-		//alert(subcategories[getSelfTxt][subcategories[getSelfTxt].length-1])
 		$('#directory_creator').val($('#directory_creator').val()+'/'+$(self).text().toLowerCase());
 		$('#sub_category').html(createArray(getSelfTxt,self))
 	}
@@ -72,7 +64,6 @@
 	function setActive(self){
 		$('#sub_category a').removeClass('selected')
 		$(self).addClass('selected');
-		//$('#navigator_line').text($('#navigator_line').text()+' - '+$(self).text());
 		return false
 	}
 	
@@ -87,10 +78,6 @@
 		return false
 	}
 	
-	function goToBack(backButton){
-		
-	}
-	
 	$(document).ready(function(){
 		
 		// Creating Main Category template
@@ -101,8 +88,6 @@
 		}
 		
 		$('#main_category').html(main_cat);
-		
-		
 		
 	})
 	
