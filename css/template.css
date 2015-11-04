@@ -10,5 +10,6 @@
 #sub_category > li { padding:0;}
 .creation-form { padding:10px 10px 10px 270px; clear:both;}
 .field-creation { width:250px; font-family:Arial, Helvetica, sans-serif;}
-.category-path { clear:both; padding:5px 0; text-transform:capitalize;}
+.category-path { clear:both; padding:5px 0; text-transform:capitalize; font-weight:700;}
 .hidden { visibility:hidden;}
+.widget-title { margin:15px auto; width:960px; text-align:left; font-size:36px;}
